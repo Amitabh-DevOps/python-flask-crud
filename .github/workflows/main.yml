@@ -3,7 +3,7 @@ name: Deploy to AWS EC2
 on:
   push:
     branches:
-      - main
+      - task
 
 jobs:
   build:
@@ -25,7 +25,7 @@ jobs:
         run: |
           docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/flaskapp:latest ./backend -f backend/flask.dockerfile
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/flaskapp:latest
-
+ 
   deploy:
     needs: build
     runs-on: ubuntu-latest
@@ -34,11 +34,43 @@ jobs:
       - name: Deploy to AWS EC2
         uses: appleboy/ssh-action@v0.1.10
         with:
-          host: ${{ secrets.EC2_HOST }}
+          host: ${{ secrets.EC2_HOST_IP }}
           username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
+          key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
           script: |
+            # Update package list and install dependencies
+            sudo apt update -y
+            sudo apt install -y docker.io git
+
+            # Add current user to the Docker group
+            sudo usermod -aG docker $USER
+            newgrp docker  # Apply group changes immediately
+
+            # Install Docker Compose v2
+            sudo apt install docker-compose-v2 -y
+
+            # Verify Docker and Docker Compose installation
+            docker --version
+            docker compose version
+
+            # Navigate to home directory
+            cd /home/${{ secrets.EC2_USER }}
+
+            # Clone repo if it does not exist
+            if [ ! -d "python-flask-crud" ]; then
+              git clone https://github.com/Amitabh-DevOps/python-flask-crud.git
+            fi
+
+            # Navigate to repo
+            cd python-flask-crud
+
+            # Ensure the correct branch is checked out
+            git fetch origin
+            git checkout task
+            git pull origin task
+
+            # Pull latest images and restart services
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/nextapp:latest
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/flaskapp:latest
-            docker-compose down
-            docker-compose up -d
+            docker compose down
+            docker compose up -d
