@@ -40,8 +40,8 @@ jobs:
           script: |
             # Update package list and install dependencies
             sudo apt update -y
-            sudo apt install -y docker.io
-            
+            sudo apt install -y docker.io git
+
             # Add current user to the Docker group
             sudo usermod -aG docker $USER
             newgrp docker  # Apply group changes immediately
@@ -53,8 +53,18 @@ jobs:
             docker --version
             docker compose version
 
-            # Navigate to the existing repository
-            cd /home/${{ secrets.EC2_USER }}/python-flask-crud  
+            # Navigate to home directory
+            cd /home/${{ secrets.EC2_USER }}
+
+            # Clone repo if it does not exist
+            if [ ! -d "python-flask-crud" ]; then
+              git clone https://github.com/Amitabh-DevOps/python-flask-crud.git
+            fi
+
+            # Navigate to repo
+            cd python-flask-crud
+
+            # Ensure the correct branch is checked out
             git fetch origin
             git checkout task
             git pull origin task
@@ -64,4 +74,3 @@ jobs:
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/flaskapp:latest
             docker compose down
             docker compose up -d
-            
