@@ -38,11 +38,28 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
           script: |
-            cd /home/${{ secrets.EC2_USER }}/python-flask-crud  # Navigate to the existing repo
-            git fetch origin                                    # Fetch latest changes
-            git checkout task                                   # Switch to the task branch
-            git pull origin task                               # Pull the latest updates
+            # Update package list and install dependencies
+            sudo apt update -y
+            sudo apt install -y docker.io
             
+            # Add current user to the Docker group
+            sudo usermod -aG docker $USER
+            newgrp docker  # Apply group changes immediately
+
+            # Install Docker Compose v2
+            sudo apt install docker-compose-v2 -y
+
+            # Verify Docker and Docker Compose installation
+            docker --version
+            docker compose version
+
+            # Navigate to the existing repository
+            cd /home/${{ secrets.EC2_USER }}/python-flask-crud  
+            git fetch origin
+            git checkout task
+            git pull origin task
+
+            # Pull latest images and restart services
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/nextapp:latest
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/flaskapp:latest
             docker compose down
