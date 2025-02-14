@@ -64,3 +64,4 @@ jobs:
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/flaskapp:latest
             docker compose down
             docker compose up -d
+            
