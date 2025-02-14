@@ -25,7 +25,7 @@ jobs:
         run: |
           docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/flaskapp:latest ./backend -f backend/flask.dockerfile
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/flaskapp:latest
-
+ 
   deploy:
     needs: build
     runs-on: ubuntu-latest
