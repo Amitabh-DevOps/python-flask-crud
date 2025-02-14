@@ -3,7 +3,7 @@ name: Deploy to AWS EC2
 on:
   push:
     branches:
-      - task
+      - main
 
 jobs:
   build:
@@ -66,8 +66,8 @@ jobs:
 
             # Ensure the correct branch is checked out
             git fetch origin
-            git checkout task
-            git pull origin task
+            git checkout main
+            git pull origin main
 
             # Pull latest images and restart services
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/nextapp:latest
