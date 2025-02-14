@@ -38,6 +38,11 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
           script: |
+            cd /home/${{ secrets.EC2_USER }}/python-flask-crud  # Navigate to the existing repo
+            git fetch origin                                    # Fetch latest changes
+            git checkout task                                   # Switch to the task branch
+            git pull origin task                               # Pull the latest updates
+            
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/nextapp:latest
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/flaskapp:latest
             docker-compose down
