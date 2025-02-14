@@ -45,5 +45,5 @@ jobs:
             
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/nextapp:latest
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/flaskapp:latest
-            docker-compose down
-            docker-compose up -d
+            docker compose down
+            docker compose up -d
